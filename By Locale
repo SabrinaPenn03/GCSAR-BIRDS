@@ -1,0 +1,55 @@
+species_by_LOCALE <- ebirds_ipeds |>
+  filter(!is.na(LOCALE), !is.na(species_count)) |>
+  group_by(LOCALE) |>
+  summarize(
+    avg_species_count = mean(species_count, na.rm = TRUE)
+  ) |>
+  mutate(
+    LOCALE = as.factor(LOCALE),
+    LOCALE = fct_recode(LOCALE,
+     "City: Large"      = "11",
+     "City: Midsize"    = "12",
+     "City: Small"      = "13",
+     "Suburb: Large"    = "21",
+     "Suburb: Midsize"  = "22",
+     "Suburb: Small"    = "23",
+     "Town: Fringe"     = "31",
+     "Town: Distant"    = "32",
+     "Town: Remote"     = "33",
+     "Rural: Fringe"    = "41",
+     "Rural: Distant"   = "42",
+     "Rural: Remote"    = "43"
+    )
+  )
+
+ggplot(species_by_LOCALE, aes(x = LOCALE, y = avg_species_count, fill = LOCALE)) + geom_col() +labs( 
+  title = "Mean Species Richness by Locale",
+  y = " Mean Species Count",
+  x = "locale") #bar plot of average number of species per locale 
+
+
+
+ebirds_ipeds |>
+  filter(!is.na(LOCALE), !is.na(species_count)) |>
+  group_by(LOCALE) |>
+  mutate(
+    LOCALE = as.factor(LOCALE),
+    LOCALE = fct_recode(LOCALE,
+                        "City: Large"      = "11",
+                        "City: Midsize"    = "12",
+                        "City: Small"      = "13",
+                        "Suburb: Large"    = "21",
+                        "Suburb: Midsize"  = "22",
+                        "Suburb: Small"    = "23",
+                        "Town: Fringe"     = "31",
+                        "Town: Distant"    = "32",
+                        "Town: Remote"     = "33",
+                        "Rural: Fringe"    = "41",
+                        "Rural: Distant"   = "42",
+                        "Rural: Remote"    = "43"
+    )
+  ) |>
+ggplot(aes(x = LOCALE, y = species_count, fill = LOCALE)) + geom_boxplot() + labs( 
+  title = "Species Richness by Locale",
+  y = "Species Count",
+  x = "locale") #boxplot of species count per locale 
