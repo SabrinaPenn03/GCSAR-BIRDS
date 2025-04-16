@@ -382,3 +382,79 @@ combined_carnegie_grouped |>
     y = "Species Richness") +
   theme_bw()
 ```
+
+### Biodiversity by School Locale
+
+The schools in this data set exist in a wide range of settings. Some schools - like the Community College of Philadelphia- have bustling city campuses, whereas others - like Unity College- are set in peaceful and secluded rural areas. Students often choose their schools based on what kind of locale they want to live in. How does this impact bird biodiversity? Our hypothesis is that more urban schools will have lower biodiversity than rural schools. Let's put this to the test
+
+Lets start by finding the average number of species observed at each locale:
+
+```{r}
+species_by_LOCALE <- ebirds_ipeds |>
+  filter(!is.na(LOCALE), !is.na(species_count)) |>
+  group_by(LOCALE) |>
+  summarize(
+    avg_species_count = mean(species_count, na.rm = TRUE)
+  ) |>
+  mutate(
+    LOCALE = as.factor(LOCALE), #in the dataset, the locale variable is described using integers. This isn't super intuituve, so we convert them to factors in order to rename them
+    LOCALE = fct_recode(LOCALE,
+     "City: Large"      = "11",
+     "City: Midsize"    = "12",
+     "City: Small"      = "13",
+     "Suburb: Large"    = "21",
+     "Suburb: Midsize"  = "22",
+     "Suburb: Small"    = "23",
+     "Town: Fringe"     = "31",
+     "Town: Distant"    = "32",
+     "Town: Remote"     = "33",
+     "Rural: Fringe"    = "41",
+     "Rural: Distant"   = "42",
+     "Rural: Remote"    = "43"
+    )
+  )
+
+species_by_LOCALE
+```
+
+Let's visualize this:
+
+```{r}
+#| fig-cap: Barplot showing the average biodiversity by school locale
+ggplot(species_by_LOCALE, aes(x = LOCALE, y = avg_species_count, fill = LOCALE)) + geom_col() +labs( 
+  title = "Mean Species Richness by Locale",
+  y = " Mean Species Count",
+  x = "locale") + coord_flip()
+```
+
+It doesn't look like there's a strong relationship between locale and bird biodiversity. Surprisingly, urban locales have higher biodiversity on average when compared with rural locales. Midsize suburban schools seem to have the highest biodiversity. Just to be sure, let's look at the full data:
+
+```{r}
+#| fig-cap: boxplots displaying the range of bird biodiversity of schools in each locale
+ebirds_ipeds |>
+  filter(!is.na(LOCALE), !is.na(species_count)) |>
+  group_by(LOCALE) |>
+  mutate(
+    LOCALE = as.factor(LOCALE),
+    LOCALE = fct_recode(LOCALE,
+                        "City: Large"      = "11",
+                        "City: Midsize"    = "12",
+                        "City: Small"      = "13",
+                        "Suburb: Large"    = "21",
+                        "Suburb: Midsize"  = "22",
+                        "Suburb: Small"    = "23",
+                        "Town: Fringe"     = "31",
+                        "Town: Distant"    = "32",
+                        "Town: Remote"     = "33",
+                        "Rural: Fringe"    = "41",
+                        "Rural: Distant"   = "42",
+                        "Rural: Remote"    = "43"
+    )
+  ) |>
+ggplot(aes(x = LOCALE, y = species_count, fill = LOCALE)) + geom_boxplot() + labs( 
+  title = "Species Richness by Locale",
+  y = "Species Count",
+  x = "locale") + coord_flip()
+```
+
+Here we can see that there's a wide range in biodiversity among city schools. This may be due to the wide variety of habitats that are created in urban areas.
